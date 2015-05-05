@@ -7,7 +7,7 @@ import com.henryuts.antsim.AntSim;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.title = "Ant Simulator 0.1";
+		config.title = "Ant Simulator 0.2";
 		config.height = 680;
 		config.width = 1200;
 		new LwjglApplication(new AntSim(), config);

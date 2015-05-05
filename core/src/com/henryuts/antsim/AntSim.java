@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.awt.*;
 import java.util.Iterator;
+import java.util.Map;
 
 public class AntSim extends ApplicationAdapter implements InputProcessor{
 	SpriteBatch batch;
@@ -81,8 +82,15 @@ public class AntSim extends ApplicationAdapter implements InputProcessor{
 			Point obstPos = board.coordTrans((Point) it.next());
 			shapeRenderer.rect(obstPos.x, obstPos.y, cellSize, cellSize);
 		}
-		shapeRenderer.end();
 
+		// draw ALL the food sources
+		shapeRenderer.setColor(Color.GREEN);
+		for (Map.Entry<Point, FoodSource> entry : board.foodMap.entrySet()) {
+			Point foodPos = board.coordTrans((Point) entry.getKey());
+			shapeRenderer.rect(foodPos.x, foodPos.y, cellSize, cellSize);
+		}
+
+		shapeRenderer.end();
         batch.end();
 	}
 

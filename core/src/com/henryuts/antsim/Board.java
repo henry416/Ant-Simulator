@@ -25,11 +25,12 @@ public class Board {
     // constants for board generation
     private int CELL_SIZE = 1;
     private int HIVE_VARIANCE = 10;     // variance of hive position from center
-    private int OBST_NO = 2500;        // number of one-celled obstacles to be placed
-    private float OBST_PROB = 0.75f;   // percentage chance for obstacle to be placed next to an existing obstacle
-    private int FOOD_NO = 20;         // number of food sources on the board
-    private int FOOD_QUALITY = 5;     // mean food quality (no. of uses)
-    private int FOOD_VARIANCE = 4;    // variance in food quality
+    private int OBST_NO = 2000;        // number of one-celled obstacles to be placed
+    private float OBST_PROB = 0.95f;   // percentage chance for obstacle to be placed next to an existing obstacle
+    private int FOOD_NO = 5;         // number of food sources on the board
+    private int FOOD_QUANTITY = 25;     // mean food quality (no. of uses)
+    private int FOOD_VARIANCE = 5;    // variance in food quality
+    private int ANT_NO = 10;            // number of ants
 
     // board size
     public int boardWidth;
@@ -40,7 +41,7 @@ public class Board {
 
     // obstacle map, of all obstacles on the board
     public HashMap<Point, Byte> obstMap = new HashMap<Point, Byte>();   // point can be used as keys since its .equals is overloaded to check value not instance equality
-    public Vector<Point> obstVec;     // vector is used for random access of obstacles
+    public Vector<Point> obstVec;     // vector is used for random access of obstacles, uses more memory in exchange for speed
 
     // food map, relating position to food source (attributes of food)
     public HashMap<Point, FoodSource> foodMap = new HashMap<Point, FoodSource>();
@@ -71,7 +72,12 @@ public class Board {
         System.out.println("Does obstacle map contain hive position?  " + obstMap.containsKey(hivePos));
     }
 
-    // generate obstacles
+    // scales the points to appropriate sized graphical coordinates used by AntSim camera
+    public Point coordTrans(Point p) {
+        return new Point(p.x * CELL_SIZE, p.y * CELL_SIZE);
+    }
+
+    // generate all obstacles
     private void generateAllObst() {
         Point obstPos;
         float obstRand;
@@ -135,11 +141,38 @@ public class Board {
         return (p.x >= 0 && p.x < boardWidth) && (p.y >= 0 && p.y < boardHeight);
     }
 
-    public Point coordTrans(Point p) {
-        return new Point(p.x * CELL_SIZE, p.y * CELL_SIZE);
+    // generates all food
+    private void generateAllFood() {
+        Random rand = new Random();
+
+        // place the food source
+        for (int i = 0; i < FOOD_NO; i++) {
+            FoodSource fds = new FoodSource();
+            fds.quantity = FOOD_QUANTITY - (int)(FOOD_VARIANCE/2) + rand.nextInt(FOOD_VARIANCE + 1);     // assign food quantity
+
+            do {
+                fds.foodPos.x = rand.nextInt(boardWidth);
+                fds.foodPos.y = rand.nextInt(boardHeight);
+            } while (nextToHive(fds.foodPos) || foodMap.containsKey(fds.foodPos) || isSurroundedByObst(fds.foodPos));
+
+            foodMap.put(fds.foodPos, fds);
+        }
+
+        System.out.println("Created " + FOOD_NO + " food sources with mean food quantity of " + FOOD_QUANTITY + ".");
     }
 
-    private void generateAllFood() {
-
+    // check if surrounded by obstacles on all sides
+    private boolean isSurroundedByObst(Point p){
+        if (obstMap.containsKey(p))
+            return true;
+        if (obstMap.containsKey(new Point(p.x-1, p.y)))
+            return true;
+        if (obstMap.containsKey(new Point(p.x+1, p.y)))
+            return true;
+        if (obstMap.containsKey(new Point(p.x, p.y-1)))
+            return true;
+        if (obstMap.containsKey(new Point(p.x, p.y+1)))
+            return true;
+        return false;
     }
 }

@@ -6,3 +6,4 @@ system behaviour.
 
 LOG:
 2016-05-05      Initial commit, working hive position and obstacle generation, working viewport for resizable window 
+2016-05-05      Added food source initial generation and display
